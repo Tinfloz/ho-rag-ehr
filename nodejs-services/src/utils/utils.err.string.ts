@@ -1,0 +1,1 @@
+export const ERR_MESSAGE = "Something went wrong!";
