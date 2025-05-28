@@ -15,7 +15,8 @@
     "@azure/search-documents": "^12.1.0",
     "@azure/storage-blob": "^12.27.0",
     "@azure/storage-queue": "^12.26.0",
-    "axios": "^1.9.0"
+    "axios": "^1.9.0",
+    "mongodb": "^6.16.0"
   },
   "devDependencies": {
     "@types/node": "^20.x",

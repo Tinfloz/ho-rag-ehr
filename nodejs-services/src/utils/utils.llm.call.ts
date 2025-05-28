@@ -12,6 +12,16 @@ ${transcript}
 Format: markdown (md)
 `
 
+const conditionPrompt = (scribe: string) => {
+    `
+        Context: You are a top-notch co-pilot for doctors. Your job is to understand medical scribes and give
+        suspected medical conditions/ disease based on your reasoning and assessment. You should only respond
+        with the suspected medical condition/ disease and nothing else.
+        Objective: Given the scribe: ${scribe}, analyse it and respond with only the suspected medical condition/ disease
+        and nothing else.
+    `
+}
+
 const createRequestPayload = (transcript:string, date:string):Record<string, any> => {
     return {
         messages:[
@@ -34,6 +44,29 @@ const createRequestPayload = (transcript:string, date:string):Record<string, any
     }
 }
 
+const createConditionPromptPayload = (scribe: string):Record<string, any> => {
+    return {
+        messages:[
+            {
+                role:"system",
+                content: "You are a top-notch co-pilot for doctors. Your job is to understand medical scribes and give suspected medical conditions/ disease based on your reasoning and assessment. You should only respond with the suspected medical condition/ disease and nothing else."
+            },
+            {
+                role:"user",
+                content:conditionPrompt(scribe)
+            }
+        ],
+       stop: null,
+       stream: false,
+       frequency_penalty: 0,
+       presence_penalty: 0
+    }
+}
+
 export const getSOAP = async (transcript:string, date:string):Promise<string> => {
     return (await axios.post(`${process.env.GPT_API}&api-key=${process.env.GPT_API_KEY}`, createRequestPayload(transcript, date)))?.data?.choices[0]?.message?.content
 } 
+
+export const getSuspectedCondition = async (scribe: string): Promise<string> => {
+    return (await axios.post(`${process.env.GPT_API_REASONING}&api-key=${process.env.GPT_API_KEY_REASONING}`, createConditionPromptPayload(scribe)))?.data?.choices[0]?.message?.content
+}

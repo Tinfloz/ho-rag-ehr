@@ -10,6 +10,11 @@ const outputQueue = output.storageQueue({
     connection: 'BLOB_CLIENT'
 })
 
+const outputQueueCondition = output.storageQueue({
+    queueName: 'condition-queue',
+    connection: 'BLOB_CLIENT'
+})
+
 async function sendToBlob(SOAP:string, patient:string, invocationId:string, dateFile:string){
     let indexerQueuePush = false;
     const blobContainerClient = blobClient.getContainerClient(patient.toLowerCase());
@@ -43,6 +48,10 @@ export async function processFileForSOAP(queueItem: unknown, context: Invocation
             context.extraOutputs.set(outputQueue, JSON.stringify({
                 patient:patient.toLowerCase(),
                 saEndPoint:process.env.BLOB_CLIENT
+            }));
+            context.extraOutputs.set(outputQueueCondition, JSON.stringify({
+                scribe:SOAP,
+                patient
             }))
         }
         context.log("SOAP generated and uploaded to SA");
@@ -54,6 +63,6 @@ export async function processFileForSOAP(queueItem: unknown, context: Invocation
 app.storageQueue('processFileForSOAP', {
     queueName: 'ai-rag',
     connection: 'BLOB_CLIENT',
-    extraOutputs:[outputQueue],
+    extraOutputs:[outputQueue, outputQueueCondition],
     handler: processFileForSOAP
 });
